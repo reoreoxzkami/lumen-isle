@@ -165,7 +165,6 @@ export function TitleMenu({ game, t, hasSave, onContinue, onNew, onSettings, onH
       </div>
       <div className="flex items-end justify-between text-[11px] text-white/40">
         <span>v1.0.0 · WASD / Mouse / Space / E</span>
-        <span>© LUMEN ISLE</span>
       </div>
     </div>
   );
