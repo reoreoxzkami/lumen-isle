@@ -3,22 +3,19 @@ import { Game } from "./game/Game";
 import { tr } from "./game/i18n";
 import { loadSettings, saveSettings, type EndStats, type HudState, type Phase, type Settings } from "./game/state";
 import { Hud, type TFn, type Toast } from "./ui/Hud";
-import { Credits, EndingScreen, HowTo, LoreModal, MapOverlay, PauseMenu, SettingsPanel } from "./ui/Menus";
-
-type Screen = "main" | "settings" | "howto" | "credits";
+import { EndingScreen, LoreModal, MapOverlay } from "./ui/Menus";
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
   const [game, setGame] = useState<Game | null>(null);
-  const [settings, setSettings] = useState<Settings>(loadSettings);
+  const [settings] = useState<Settings>(loadSettings);
   const settingsRef = useRef(settings);
   const [phase, setPhase] = useState<Phase>("title");
   const [hud, setHud] = useState<HudState | null>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [lore, setLore] = useState<number | null>(null);
   const [ending, setEnding] = useState<EndStats | null>(null);
-  const [screen, setScreen] = useState<Screen>("main");
   const [error, setError] = useState<string | null>(null);
   const toastId = useRef(0);
 
@@ -43,7 +40,6 @@ export default function App() {
         gg.onHud = setHud;
         gg.onPhase = (p) => {
           setPhase(p);
-          if (p === "paused" || p === "title") setScreen("main");
           if (p === "title") {
             // No title screen: jump straight back into the game.
             if (gg.hasSave()) gg.continueGame();
@@ -79,36 +75,11 @@ export default function App() {
 
   const overlay = "absolute inset-0 z-20 flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-[3px]";
 
-  const subScreen = (back: () => void) => {
-    if (!game) return null;
-    if (screen === "settings") return <SettingsPanel game={game} settings={settings} onChange={setSettings} t={t} onBack={back} />;
-    if (screen === "howto") return <HowTo game={game} t={t} onBack={back} />;
-    if (screen === "credits") return <Credits game={game} t={t} onBack={back} />;
-    return null;
-  };
-
   return (
     <div className="fixed inset-0 overflow-hidden bg-slate-950 text-white" onPointerDown={() => gameRef.current?.audio.init()}>
       <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full" />
 
       {game && hud && (phase === "playing" || phase === "paused" || phase === "lore") && <Hud game={game} hud={hud} t={t} toasts={toasts} />}
-
-      {game && phase === "paused" && (
-        <div className={overlay}>
-          {screen === "main" ? (
-            <PauseMenu
-              game={game}
-              t={t}
-              hud={hud}
-              onResume={() => game.resume()}
-              onSettings={() => setScreen("settings")}
-              onHow={() => setScreen("howto")}
-            />
-          ) : (
-            subScreen(() => setScreen("main"))
-          )}
-        </div>
-      )}
 
       {game && phase === "map" && (
         <div className={overlay}>
