@@ -598,12 +598,13 @@ export class Game {
     this.lockPointer();
   }
 
+  // No pause screen: just save and release the mouse; the world keeps running.
+  // Clicking the canvas re-locks the pointer.
   pause() {
     if (this.phase !== "playing") return;
     this.save();
+    this.keys.clear();
     this.unlockPointer();
-    this.photo = false;
-    this.setPhase("paused");
   }
   resume() {
     if (this.phase !== "paused") return;
