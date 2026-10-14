@@ -3,7 +3,7 @@ import { Game } from "./game/Game";
 import { tr } from "./game/i18n";
 import { loadSettings, saveSettings, type EndStats, type HudState, type Phase, type Settings } from "./game/state";
 import { Hud, type TFn, type Toast } from "./ui/Hud";
-import { Credits, EndingScreen, HowTo, LoreModal, MapOverlay, PauseMenu, SettingsPanel, TitleMenu } from "./ui/Menus";
+import { Credits, EndingScreen, HowTo, LoreModal, MapOverlay, PauseMenu, SettingsPanel } from "./ui/Menus";
 
 type Screen = "main" | "settings" | "howto" | "credits";
 
@@ -19,7 +19,6 @@ export default function App() {
   const [lore, setLore] = useState<number | null>(null);
   const [ending, setEnding] = useState<EndStats | null>(null);
   const [screen, setScreen] = useState<Screen>("main");
-  const [hasSave, setHasSave] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const toastId = useRef(0);
 
@@ -45,7 +44,11 @@ export default function App() {
         gg.onPhase = (p) => {
           setPhase(p);
           if (p === "paused" || p === "title") setScreen("main");
-          if (p === "title") setHasSave(gg.hasSave());
+          if (p === "title") {
+            // No title screen: jump straight back into the game.
+            if (gg.hasSave()) gg.continueGame();
+            else gg.newGame();
+          }
         };
         gg.onLore = setLore;
         gg.onEnding = setEnding;
@@ -56,8 +59,10 @@ export default function App() {
           setToasts((prev) => [...prev.slice(-2), { id: tid, text: tr(lang, key, ...a), good }]);
           window.setTimeout(() => setToasts((prev) => prev.filter((x) => x.id !== tid)), 3400);
         };
-        setHasSave(gg.hasSave());
         gg.start();
+        // Start playing immediately (no title screen).
+        if (gg.hasSave()) gg.continueGame();
+        else gg.newGame();
         gameRef.current = gg;
         setGame(gg);
       } catch (e) {
@@ -88,22 +93,6 @@ export default function App() {
 
       {game && hud && (phase === "playing" || phase === "paused" || phase === "lore") && <Hud game={game} hud={hud} t={t} toasts={toasts} />}
 
-      {game && phase === "title" &&
-        (screen === "main" ? (
-          <TitleMenu
-            game={game}
-            t={t}
-            hasSave={hasSave}
-            onContinue={() => game.continueGame()}
-            onNew={() => game.newGame()}
-            onSettings={() => setScreen("settings")}
-            onHow={() => setScreen("howto")}
-            onCredits={() => setScreen("credits")}
-          />
-        ) : (
-          <div className={overlay}>{subScreen(() => setScreen("main"))}</div>
-        ))}
-
       {game && phase === "paused" && (
         <div className={overlay}>
           {screen === "main" ? (
@@ -114,7 +103,6 @@ export default function App() {
               onResume={() => game.resume()}
               onSettings={() => setScreen("settings")}
               onHow={() => setScreen("howto")}
-              onTitle={() => game.toTitle()}
             />
           ) : (
             subScreen(() => setScreen("main"))
@@ -136,7 +124,7 @@ export default function App() {
 
       {game && phase === "ending" && ending && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-gradient-to-t from-slate-950/80 via-slate-950/30 to-transparent p-4">
-          <EndingScreen game={game} t={t} stats={ending} onContinue={() => game.continueAfterEnding()} onTitle={() => game.toTitle()} />
+          <EndingScreen game={game} t={t} stats={ending} onContinue={() => game.continueAfterEnding()} />
         </div>
       )}
 
