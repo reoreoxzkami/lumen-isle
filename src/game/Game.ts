@@ -180,7 +180,7 @@ export class Game {
     this.settings = settings;
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.0;
     this.camera = new THREE.PerspectiveCamera(62, 1, 0.3, 2600);
@@ -464,6 +464,7 @@ export class Game {
 
   // ====================== input ======================
   private onKeyDown = (e: KeyboardEvent) => {
+    this.audio.init(); // resume audio on first key press (no title screen gesture anymore)
     const c = e.code;
     if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Tab"].includes(c)) e.preventDefault();
     if (e.repeat) return;
