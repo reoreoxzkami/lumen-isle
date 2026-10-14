@@ -169,8 +169,8 @@ export function TitleMenu({ game, t, hasSave, onContinue, onNew, onSettings, onH
   );
 }
 
-export function PauseMenu({ game, t, hud, onResume, onSettings, onHow, onTitle }: {
-  game: Game; t: TFn; hud: HudState | null; onResume: () => void; onSettings: () => void; onHow: () => void; onTitle: () => void;
+export function PauseMenu({ game, t, hud, onResume, onSettings, onHow }: {
+  game: Game; t: TFn; hud: HudState | null; onResume: () => void; onSettings: () => void; onHow: () => void;
 }) {
   return (
     <Panel title={t("menu.paused")}>
@@ -185,7 +185,6 @@ export function PauseMenu({ game, t, hud, onResume, onSettings, onHow, onTitle }
         <Btn game={game} primary onClick={onResume}>{t("menu.resume")}</Btn>
         <Btn game={game} onClick={onHow}>{t("menu.howto")}</Btn>
         <Btn game={game} onClick={onSettings}>{t("menu.settings")}</Btn>
-        <Btn game={game} onClick={onTitle}>{t("menu.title")}</Btn>
       </div>
     </Panel>
   );
@@ -232,7 +231,7 @@ export function MapOverlay({ game, t }: { game: Game; t: TFn }) {
   );
 }
 
-export function EndingScreen({ game, t, stats, onContinue, onTitle }: { game: Game; t: TFn; stats: EndStats; onContinue: () => void; onTitle: () => void }) {
+export function EndingScreen({ game, t, stats, onContinue }: { game: Game; t: TFn; stats: EndStats; onContinue: () => void }) {
   const m = Math.floor(stats.playTime / 60), h = Math.floor(m / 60);
   const time = `${h}:${String(m % 60).padStart(2, "0")}:${String(Math.floor(stats.playTime % 60)).padStart(2, "0")}`;
   return (
@@ -247,7 +246,6 @@ export function EndingScreen({ game, t, stats, onContinue, onTitle }: { game: Ga
       </div>
       <div className="mt-8 flex w-full max-w-sm flex-col gap-3">
         <Btn game={game} primary onClick={onContinue}>{t("end.continue")}</Btn>
-        <Btn game={game} onClick={onTitle}>{t("end.title2")}</Btn>
       </div>
     </div>
   );
