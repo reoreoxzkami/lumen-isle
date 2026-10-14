@@ -44,6 +44,7 @@ const S: Record<string, [string, string]> = {
   "key.photo": ["フォトモード / 撮影(C)", "Photo mode / Capture (C)"],
   "key.zoom": ["カメラ距離", "Camera Distance"],
   "key.pause": ["ポーズ", "Pause"],
+  "key.release": ["マウスを解放 (クリックで戻る)", "Free mouse (click to return)"],
   "how.tip": [
     "灯台の光の柱は上昇気流を生み、滑空で空高く昇れる。",
     "Beacon light columns create updrafts — glide upward on them.",
