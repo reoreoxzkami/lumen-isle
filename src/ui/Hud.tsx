@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useCallback, type ReactNode } from "react";
 import type { Game } from "../game/Game";
 import type { HudState } from "../game/state";
 import { wrapAngle } from "../game/noise";
@@ -82,11 +82,9 @@ function Clock({ tod }: { tod: number }) {
 }
 
 export function Hud({ game, hud, t, toasts }: { game: Game; hud: HudState; t: TFn; toasts: Toast[] }) {
-  const mini = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    game.registerMinimap(mini.current);
-    return () => game.registerMinimap(null);
-  }, [game]);
+  // Callback ref: re-registers the minimap whenever the canvas remounts
+  // (e.g. after leaving photo mode), so it never draws into a detached canvas.
+  const mini = useCallback((c: HTMLCanvasElement | null) => game.registerMinimap(c), [game]);
 
   if (hud.photo) {
     return (
@@ -136,6 +134,26 @@ export function Hud({ game, hud, t, toasts }: { game: Game; hud: HudState; t: TF
             <span className="tabular-nums">{hud.stones}/{hud.stonesTotal}</span>
           </div>
         </div>
+      </div>
+
+      {/* top right: controls hint */}
+      <div className="absolute right-4 top-4 rounded-xl border border-white/10 bg-slate-900/35 px-3 py-2 text-[10px] leading-relaxed text-white/60 backdrop-blur-sm">
+        {([
+          ["WASD", t("key.move")],
+          ["Mouse", t("key.look")],
+          ["Shift", t("key.sprint")],
+          ["Space", t("key.jump")],
+          ["E", t("key.interact")],
+          ["M", t("key.map")],
+          ["P / C", t("key.photo")],
+          ["Wheel", t("key.zoom")],
+          ["Esc", t("key.release")],
+        ] as [string, string][]).map(([k, v]) => (
+          <div key={k} className="flex gap-2">
+            <span className="w-11 shrink-0 font-semibold text-white/80">{k}</span>
+            <span>{v}</span>
+          </div>
+        ))}
       </div>
 
       {/* bottom left */}
